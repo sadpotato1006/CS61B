@@ -137,24 +137,24 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         return new it();
     }
 
-    private class it implements Iterator<T>{
+    private class it implements Iterator<T> {
         int pos;
 
-        public it(){
-            pos=0;
+        public it() {
+            pos = 0;
         }
 
-        public boolean hasNext(){
-            return pos<size();
+        public boolean hasNext() {
+            return pos < size();
         }
 
-        public T next(){
-            if(!hasNext()) {
+        public T next() {
+            if (!hasNext()) {
                 return null;
             }
-            T i=get(pos);
-            pos+=1;
+            T i = get(pos);
+            pos += 1;
             return i;
         }
-
+    }
 }
