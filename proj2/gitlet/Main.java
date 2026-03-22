@@ -12,10 +12,10 @@ public class Main {
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // TODO: what if args is empty?
         try {
-            if (args.length == 0 || args == null) {
+            if (args == null || args.length == 0) {
                 System.out.println("Please enter a command.");
                 exit(0);
             }
@@ -44,8 +44,8 @@ public class Main {
                     System.out.println("No command with that name exists.");
                     exit(0);
             }
-        } catch (Exception e){
-            System.exit(0);
+        }catch (IOException e){
+            exit(0);
         }
     }
 }
