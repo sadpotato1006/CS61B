@@ -7,6 +7,7 @@ import edu.princeton.cs.algs4.ST;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -35,53 +36,71 @@ public class Commit implements Serializable {
 
     /** The message of this Commit. */
     private String message;
-    private String parent;
+    private List<String> parent = new ArrayList<>();
     private String timestamp;
     public HashMap<String, String> map;     //from filename to its hash
     public static File COMMITTED_DIR = Repository.COMMITTED_DIR;
 
     /* TODO: fill in the rest of this class. */
     public Commit(String message, String parent) throws IOException {
+        this(message, parent, null);
+    }
+    public Commit(String message, String parent1, String parent2){
         this.message = message;
-        this.parent = parent;
-        if(parent == null){
-            this.map = new HashMap<>();
-           this.timestamp = "00:00:00 UTC, Thursday, 1 January 1970";
-        }else{
-            //init timestamp ----------------------------------format error
-            Date date = new Date();
-            this.timestamp = date.toString();
+        this.map = new HashMap<>();
+        if(parent1 == null){
+            this.parent = null;
+            this.timestamp = "00:00:00 UTC, Thursday, 1 January 1970";
+            return;
+        }
+        List<String> l = plainFilenamesIn(STAGED);
+        List<String> ll =plainFilenamesIn(REMOVED);
+        if( (l == null || l.isEmpty() )&&( ll == null || ll.isEmpty()) ) { //判断是否有change
+            System.out.println("No changes added to the commit");
+            exit(0);
+        }
+        this.parent = new ArrayList<>();
+        if(parent1 != null) this.parent.add(parent1);
+        if(parent2 != null) this.parent.add(parent2);
+        //init timestamp ----------------------------------format error
+        Date date = new Date();
+        this.timestamp = date.toString();
 
-            //clone map (not just simply '=')
-            File f = join(COMMITTED_DIR, this.parent);
+        //clone map (not just simply '=')
+        for(String  a : this.parent){
+            File f = join(COMMITTED_DIR, a);
             Commit par = readObject(f, Commit.class);
-            this.map = new HashMap<>(par.map);
-
-            //replace map( add )
-            List<String> l = plainFilenamesIn(STAGED);
-            if(l != null){
-                for(String s: l){
-                    File ff = join(STAGED, s);
-                    this.map.put(s, readContentsAsString(ff)); //s->filename; readContentsAsString(ff)->hash of file
-                    ff.delete();
-                }
+            this.map.putAll(par.map);
+        }
+        //replace map( add )
+        //List<String> l = plainFilenamesIn(STAGED);
+        if(l != null){
+            for(String s: l){
+                File ff = join(STAGED, s);
+                this.map.put(s, readContentsAsString(ff)); //s->filename; readContentsAsString(ff)->hash of file
+                ff.delete();
             }
-            //replace map( remove )
-            List<String> ll =plainFilenamesIn(REMOVED);
-            if(ll != null){
-                for(String s: ll){
-                    File fff = join(REMOVED, s);
-                    this.map.remove(s);
-                    fff.delete();
-                }
-            }
-
-            if( (l == null || l.isEmpty() )&&( ll == null || ll.isEmpty()) ) {
-                System.out.println("No changes added to the commit");
-                exit(0);
+        }
+        //replace map( remove )
+        //List<String> ll =plainFilenamesIn(REMOVED);
+        if(ll != null){
+            for(String s: ll){
+                File fff = join(REMOVED, s);
+                this.map.remove(s);
+                fff.delete();
             }
         }
     }
 
+    public List<String> get_parent(){
+        return this.parent;
+    }
 
+    public String get_time(){
+        return this.timestamp;
+    }
+
+    public String get_message(){
+        return this.message;
+    }
 }

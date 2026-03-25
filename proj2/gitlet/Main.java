@@ -40,6 +40,25 @@ public class Main {
                     break;
                 case "rm":
                     Repository.rm(args[1]);
+                    break;
+                case "log":
+                    Repository.log();
+                    break;
+                case "global-log":
+                    Repository.global_log();
+                    break;
+                case "find":
+                    Repository.find(args[1]);
+                    break;
+                case "status":
+                    Repository.status();
+                    break;
+                case "checkout":
+                    Repository.checkout(args);
+                    break;
+                case "branch":
+                    Repository.branch(args[1]);
+                    break;
                 default:
                     System.out.println("No command with that name exists.");
                     exit(0);
