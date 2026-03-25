@@ -7,10 +7,8 @@ import edu.princeton.cs.algs4.ST;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static gitlet.Repository.REMOVED;
 import static gitlet.Repository.STAGED;
@@ -50,7 +48,7 @@ public class Commit implements Serializable {
         this.map = new HashMap<>();
         if(parent1 == null){
             this.parent = null;
-            this.timestamp = "00:00:00 UTC, Thursday, 1 January 1970";
+            this.timestamp = "Thu Jan 1 00:00:00 1970 -0800";
             return;
         }
         List<String> l = plainFilenamesIn(STAGED);
@@ -62,9 +60,9 @@ public class Commit implements Serializable {
         this.parent = new ArrayList<>();
         if(parent1 != null) this.parent.add(parent1);
         if(parent2 != null) this.parent.add(parent2);
-        //init timestamp ----------------------------------format error
-        Date date = new Date();
-        this.timestamp = date.toString();
+        //init timestamp
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
+        this.timestamp = formatter.format(new Date());
 
         //clone map (not just simply '=')
         for(String  a : this.parent){
