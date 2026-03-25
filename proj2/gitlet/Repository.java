@@ -75,7 +75,7 @@ public class Repository {
         byte[] bc = serialize(c);
         File f = join(COMMITTED_DIR, sha1(bc));
         f.createNewFile();
-        writeContents(f, c);
+        writeObject(f, c);
 
         File ff = join(BRANCHES, head);
         writeContents(ff, sha1(bc));
