@@ -106,10 +106,14 @@ public class Repository {
     }
 
     public static void log(){
-        Commit curr = getHeadCommit();
+        head = readContentsAsString(HEAD);
+        File ff = join(BRANCHES, head);
+        String currHash = readContentsAsString(ff);
         while(true){
+            File fff = join(COMMITTED_DIR, currHash);
+            Commit curr = readObject(fff, Commit.class);
 
-            help_print_log(curr);
+            help_print_log(curr, currHash);
             List<String> par = curr.get_parent();
 
             //已print首次提交，退出
@@ -117,9 +121,8 @@ public class Repository {
                 return;
             }
 
-            //更新curr
-            File f = join(COMMITTED_DIR, par.get(0));
-            curr = readObject(f, Commit.class);
+            //更新currHash
+            currHash = par.get(0);
         }
     }
     public static void global_log(){
@@ -130,12 +133,12 @@ public class Repository {
         for(String s : list){
             File f = join(COMMITTED_DIR, s);
             Commit curr = readObject(f, Commit.class);
-            help_print_log(curr);
+            help_print_log(curr, s);
         }
     }
-    private static void help_print_log(Commit curr){
+    private static void help_print_log(Commit curr, String hash){
         System.out.println("===");
-        System.out.println("commit " + sha1(serialize(curr)));
+        System.out.println("commit " + hash);
         List<String> par = curr.get_parent();
         if(par != null && par.size()>1){
             System.out.print("Merge:");
@@ -251,10 +254,11 @@ public class Repository {
                 exit(0);
             }
         }
-        System.out.println("No commit with that id exists");
+        System.out.println("No commit with that id exists.");
         exit(0);
     }
     private static void checkout_v3(String branch_name) throws IOException {
+        head = readContentsAsString(HEAD);
         File des = join(BRANCHES, branch_name);
         if(!des.exists()){
             System.out.println("No such branch exists.");
@@ -350,6 +354,92 @@ public class Repository {
         writeContents(f, getHeadHash());
     }
 
+    public static void rm_branch(String branch_name){
+        File f = join(BRANCHES, branch_name);
+        if(!f.exists()){
+            System.out.println("A branch with that name does not exist.");
+            return;
+        }
+        head = readContentsAsString(HEAD);
+        if(branch_name.equals(head)){
+            System.out.println("Cannot remove the current branch.");
+            return;
+        }
+        restrictedDelete(f);
+    }
+
+    public static void reset(String commit_id) throws IOException {
+        List<String> ls = plainFilenamesIn(COMMITTED_DIR);
+        for(String s : ls){
+            if(s.startsWith(commit_id)){
+                help_reset(s);
+                exit(0);
+            }
+        }
+        System.out.println("No commit with that id exists.");
+        return;
+    }
+    private static void help_reset(String commit_id) throws IOException {
+        head = readContentsAsString(HEAD);
+        File fff = join(COMMITTED_DIR, commit_id);
+        if(!fff.exists()){
+            System.out.println("No commit with that id exists.");
+            return;
+        }
+        List<String> list1 = plainFilenamesIn(CWD);     //工作目录下的文件名的list
+        Commit curr = getHeadCommit();
+        Commit des_com = readObject(fff, Commit.class);
+        Set<String> list2 = des_com.map.keySet();     //待跳转的commit目录下的文件名的list
+        if (list1 != null) {    //dangerous
+            for(String s : list1){
+                if(curr.map.get(s) == null && des_com.map.get(s) != null){
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                    return;
+                }
+            }
+        }
+        //开始复制
+        for(String s : list2){
+            File f = join(CWD, s);
+            if(!f.exists()){
+                f.createNewFile();
+            }
+            String des_file_hash = des_com.map.get(s);
+            File des_file = join(BLOBS, des_file_hash);
+            byte[] by = readContents(des_file);
+            writeContents(f, by);
+        }
+        //任何在当前分支中被追踪（Tracked）、但在目标分支中不存在的文件都将被删除
+        if (list1 != null) {
+            for(String s : list1){
+                if(curr.map.get(s) != null && des_com.map.get(s) == null){
+                    File f = join(CWD, s);
+                    restrictedDelete(f);
+                }
+            }
+        }
+
+        //清空缓存区
+        List<String> l = plainFilenamesIn(STAGED);
+        if (l != null) {
+            for (String s : l) {
+                File ff = join(STAGED, s);
+                restrictedDelete(ff);
+            }
+        }
+        List<String> ll = plainFilenamesIn(REMOVED);
+        if (ll != null) {
+            for (String s : ll) {
+                File ff = join(REMOVED, s);
+                restrictedDelete(ff);
+            }
+        }
+
+        //更新：当前分支的指针 指向 目的分支
+        String curr_branch = head;
+        File fi = join(BRANCHES, curr_branch);
+        writeContents(fi, commit_id);
+    }
 
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
