@@ -258,7 +258,7 @@ public class Repository {
         }else if(args.length == 2){
             checkout_v3(args[1]);       //java gitlet.Main checkout [branch name]
         }else{
-            System.out.println("error");
+            System.out.println("Incorrect operands.");
             return;
         }
     }
@@ -319,7 +319,7 @@ public class Repository {
             for(String s : list1){
                 if(curr.map.get(s) != null && des_com.map.get(s) == null){
                     File f = join(CWD, s);
-                    restrictedDelete(f);
+                    f.delete();
                 }
             }
         }
@@ -330,14 +330,14 @@ public class Repository {
             if (l != null) {
                 for(String s : l){
                     File ff = join(STAGED, s);
-                    restrictedDelete(ff);
+                    ff.delete();
                 }
             }
             List<String> ll = plainFilenamesIn(REMOVED);
             if (ll != null) {
                 for(String s : ll){
                     File ff = join(REMOVED, s);
-                    restrictedDelete(ff);
+                    ff.delete();
                 }
             }
 
@@ -350,13 +350,13 @@ public class Repository {
     private static void help_checkout(String commit_id, String filename){
         File f = join(COMMITTED_DIR, commit_id);
         if(!f.exists()){    //commit_id don't exist
-            System.out.println("No commit with that id exists");
+            System.out.println("No commit with that id exists.");
             exit(0);
         }else{
             Commit com = readObject(f, Commit.class);
             String hash = com.map.get(filename);
             if(hash == null){   //commit_id exist but filename don't exist
-                System.out.println("File does not exist in that commit");
+                System.out.println("File does not exist in that commit.");
                 exit(0);
             }else{
                 File ff = join(BLOBS, hash);
@@ -388,7 +388,7 @@ public class Repository {
             System.out.println("Cannot remove the current branch.");
             return;
         }
-        restrictedDelete(f);
+        f.delete();
     }
 
     public static void reset(String commit_id) throws IOException {
@@ -440,7 +440,7 @@ public class Repository {
             for(String s : list1){
                 if(curr.map.get(s) != null && des_com.map.get(s) == null){
                     File f = join(CWD, s);
-                    restrictedDelete(f);
+                    f.delete();
                 }
             }
         }
@@ -450,14 +450,14 @@ public class Repository {
         if (l != null) {
             for (String s : l) {
                 File ff = join(STAGED, s);
-                restrictedDelete(ff);
+                ff.delete();
             }
         }
         List<String> ll = plainFilenamesIn(REMOVED);
         if (ll != null) {
             for (String s : ll) {
                 File ff = join(REMOVED, s);
-                restrictedDelete(ff);
+                ff.delete();
             }
         }
 

@@ -20,6 +20,10 @@ public class Main {
                 exit(0);
             }
             String firstArg = args[0];
+            if(!firstArg.equals("init") && !Repository.GITLET_DIR.exists()){
+                System.out.println("Not in an initialized Gitlet directory.");
+                exit(0);
+            }
             switch (firstArg) {
                 case "init":
                     // TODO: handle the `init` command
@@ -28,7 +32,7 @@ public class Main {
                 case "add":
                     // TODO: handle the `add [filename]` command
                     if (args.length != 2) {
-                        System.out.println("error");
+                        System.out.println("Incorrect operands.");
                         exit(0);
                     }
                     Repository.add(args[1]);
@@ -44,7 +48,7 @@ public class Main {
                     break;
                 case "rm":
                     if (args.length != 2) {
-                        System.out.println("error");
+                        System.out.println("Incorrect operands.");
                         exit(0);
                     }
                     Repository.rm(args[1]);
@@ -57,7 +61,7 @@ public class Main {
                     break;
                 case "find":
                     if (args.length != 2) {
-                        System.out.println("error");
+                        System.out.println("Incorrect operands.");
                         exit(0);
                     }
                     Repository.find(args[1]);
@@ -70,28 +74,28 @@ public class Main {
                     break;
                 case "branch":
                     if (args.length != 2) {
-                        System.out.println("error");
+                        System.out.println("Incorrect operands.");
                         exit(0);
                     }
                     Repository.branch(args[1]);
                     break;
                 case "rm-branch":
                     if (args.length != 2) {
-                        System.out.println("error");
+                        System.out.println("Incorrect operands.");
                         exit(0);
                     }
                     Repository.rm_branch(args[1]);
                     break;
                 case "reset":
                     if (args.length != 2) {
-                        System.out.println("error");
+                        System.out.println("Incorrect operands.");
                         exit(0);
                     }
                     Repository.reset(args[1]);
                     break;
                 case "merge":
                     if (args.length != 2) {
-                        System.out.println("error");
+                        System.out.println("Incorrect operands.");
                         exit(0);
                     }
                     Repository.merge(args[1]);
