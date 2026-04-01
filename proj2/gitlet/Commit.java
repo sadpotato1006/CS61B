@@ -36,7 +36,7 @@ public class Commit implements Serializable {
     private String message;
     private List<String> parent = new ArrayList<>();
     private String timestamp;
-    public HashMap<String, String> map;     //from filename to its hash
+    public TreeMap<String, String> map;     //from filename to its hash
     public static File COMMITTED_DIR = Repository.COMMITTED_DIR;
 
     /* TODO: fill in the rest of this class. */
@@ -45,7 +45,7 @@ public class Commit implements Serializable {
     }
     public Commit(String message, String parent1, String parent2){
         this.message = message;
-        this.map = new HashMap<>();
+        this.map = new TreeMap<>();
         if(parent1 == null){
             this.parent = null;
             this.timestamp = "Thu Jan 1 00:00:00 1970 -0800";
@@ -62,6 +62,7 @@ public class Commit implements Serializable {
         if(parent2 != null) this.parent.add(parent2);
         //init timestamp
         SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.US);
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT-08:00")); // 强行锁死加州时间
         this.timestamp = formatter.format(new Date());
 
         //clone map (not just simply '=')

@@ -31,8 +31,8 @@ public class Main {
                     break;
                 // TODO: FILL THE REST IN
                 case "commit":
-                    if (args.length == 1) {
-                        System.out.println("Please enter a commit message");
+                    if (args.length == 1 || args[1].isEmpty()) {
+                        System.out.println("Please enter a commit message.");
                         exit(0);
                     } else {
                         Repository.commit(args[1]);
@@ -64,6 +64,9 @@ public class Main {
                     break;
                 case "reset":
                     Repository.reset(args[1]);
+                    break;
+                case "merge":
+                    Repository.merge(args[1]);
                     break;
                 default:
                     System.out.println("No command with that name exists.");

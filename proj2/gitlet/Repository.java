@@ -1,5 +1,7 @@
 package gitlet;
 
+import spark.utils.ObjectUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -56,12 +58,26 @@ public class Repository {
             System.out.println("File does not exist.");
             exit(0);
         }
+
         //从removed文件夹中删除该文件
         File ff = join(REMOVED, arg);
         if(ff.exists()){
             ff.delete();
         }
 
+        //检查add的文件与父commit里面的是否相同 如果相同就不add(直接return)
+        Commit cur_com = getHeadCommit();
+        String cur_hash = cur_com.map.get(arg);
+        String new_hash = sha1(readContents(f));
+        if(cur_hash.equals(new_hash)){
+            //如果暂存区有就删掉
+            File fff = join(STAGED, arg);
+            if(fff.exists()){
+                fff.delete();
+            }
+            return;
+        }
+        //add
         Blobs.add_file(f);
         StagedFile.add_file(arg, f);
     }
@@ -270,7 +286,8 @@ public class Repository {
         }
         List<String> list1 = plainFilenamesIn(CWD);     //工作目录下的文件名的list
         Commit curr = getHeadCommit();
-        Commit des_com = readObject(des, Commit.class);
+        String des_hash = readContentsAsString(des);
+        Commit des_com = readObject(join(COMMITTED_DIR, des_hash), Commit.class);
         Set<String> list2 = des_com.map.keySet();     //待跳转的commit目录下的文件名的list
         if (list1 != null) {    //dangerous
             for(String s : list1){
@@ -439,6 +456,174 @@ public class Repository {
         String curr_branch = head;
         File fi = join(BRANCHES, curr_branch);
         writeContents(fi, commit_id);
+    }
+
+    public static void merge(String branch_name) throws IOException {
+        //If there are staged additions or removals present, exit.
+        List<String> l1 = plainFilenamesIn(STAGED);
+        List<String> l2 = plainFilenamesIn(REMOVED);
+        if((l1 != null && !l1.isEmpty()) || (l2 != null && !l2.isEmpty())){
+            System.out.println("You have uncommitted changes.");
+            exit(0);
+        }
+        //If a branch with the given name does not exist
+        File fe = join(BRANCHES, branch_name);
+        if(!fe.exists()){
+            System.out.println("A branch with that name does not exist.");
+            exit(0);
+        }
+        //If attempting to merge a branch with itself, print the error message Cannot merge a branch with itself.
+        head = readContentsAsString(HEAD);
+        if(branch_name.equals(head)){
+            System.out.println("Cannot merge a branch with itself.");
+            exit(0);
+        }
+        //If an untracked file in the current commit would be overwritten or deleted by the merge, exit
+        // and print error message
+        File des = join(BRANCHES, branch_name);
+        List<String> list1 = plainFilenamesIn(CWD);     //工作目录下的文件名的list
+        Commit curr = getHeadCommit();
+        String des_hash = readContentsAsString(des);
+        Commit des_com = readObject(join(COMMITTED_DIR, des_hash), Commit.class);
+        if (list1 != null) {    //dangerous
+            for(String s : list1){
+                if(curr.map.get(s) == null && des_com.map.get(s) != null){
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                    return;
+                }
+            }
+        }
+
+
+        File ff = join(BRANCHES, head);
+        String head_hash = readContentsAsString(ff);
+        File f = join(BRANCHES, branch_name);
+        String hash_of_giving_branch = readContentsAsString(f);
+        String split_point_hash = get_split_point_hash(branch_name);
+        if(hash_of_giving_branch.equals(split_point_hash)){
+            System.out.println("Given branch is an ancestor of the current branch.");
+            return;
+        }
+        if(head_hash.equals(split_point_hash)){
+            help_reset(hash_of_giving_branch);
+            System.out.println("Current branch fast-forwarded.");
+            return;
+        }
+
+        File fsp = join(COMMITTED_DIR, split_point_hash);
+        Commit split_point = readObject(fsp, Commit.class);
+        Commit curr_com = getHeadCommit();
+        File fgc = join(COMMITTED_DIR, hash_of_giving_branch);
+        Commit giving_com = readObject(fgc, Commit.class);
+
+        //1.since the split point,any files that have been modified in the given branch
+        //  but not modified in the current branch
+        //  should be changed to their versions in the given branch
+        //5.Any files that were not present at the split point
+        //  and are present only in the given branch should be checked out and staged.
+        //6.Any files present at the split point, unmodified in the current branch,
+        // and absent in the given branch should be removed (and untracked).
+        HashSet<String> set = new HashSet<>();
+        set.addAll(split_point.map.keySet());
+        set.addAll(curr_com.map.keySet());
+        set.addAll(giving_com.map.keySet());
+        boolean has_confilct = false;
+
+        for(String s : set){
+            String hash_sp = split_point.map.get(s);
+            String hash_cc = curr_com.map.get(s);
+            String hash_gc = giving_com.map.get(s);
+            if(!Objects.equals(hash_gc, hash_sp) && Objects.equals(hash_cc, hash_sp) && hash_gc != null){ // 1. and 5.
+                File file = join(BLOBS, hash_gc);
+                File f1 = join(CWD, s);
+                writeContents(f1, readContents(file));
+                add(s);
+                continue;
+            }
+            if(hash_sp != null && Objects.equals(hash_cc, hash_sp) && hash_gc == null){ //6.
+                rm(s);
+                continue;
+            }
+
+
+            //8.1 the contents of both are changed and different from other
+            //8.2 the contents of one are changed and the other file is deleted
+            //8.3 the file was absent at the split point and has different contents in the given and current branches
+            boolean is_conflict = !Objects.equals(hash_cc, hash_sp) &&
+                                  !Objects.equals(hash_gc, hash_sp) &&
+                                  !Objects.equals(hash_cc, hash_gc);
+            if(is_conflict){
+                has_confilct = true;
+
+                String gc = "";
+                if(hash_gc != null){
+                    File f_gc = join(BLOBS, hash_gc);
+                    if(f_gc.exists()) gc = readContentsAsString(f_gc);
+                }
+                String cc = "";
+                if(hash_cc != null){
+                    File f_cc = join(BLOBS, hash_cc);
+                    if(f_cc.exists()) cc = readContentsAsString(f_cc);
+                }
+
+                StringBuilder ans = new StringBuilder("<<<<<<< HEAD\n");
+                ans.append(cc);
+                ans.append("=======\n");
+                ans.append(gc);
+                ans.append(">>>>>>>\n");
+
+                File ffff = join(CWD, s);
+                writeContents(ffff, ans.toString());
+                add(s);
+            }
+        }
+
+        //生成并提交commit
+        Commit c = new Commit("Merged " + branch_name + " into " + head + ".", head_hash, hash_of_giving_branch);
+        commitCommit(c);
+        if(has_confilct){
+            System.out.println("Encountered a merge conflict.");
+        }
+
+
+    }
+    private static String get_split_point_hash(String branch_name){
+        Queue<String> q = new LinkedList<>(); //q存放head commit hash and it's parents hash
+        Set<String> s = new HashSet<>();
+        q.add(getHeadHash());
+        while(!q.isEmpty()){    //把head的所有父commit的hash都存到Set<String> s里面
+            String first = q.poll();
+            s.add(first);
+            File f = join(COMMITTED_DIR, first);
+            Commit com = readObject(f, Commit.class);
+            if(com.get_parent() != null){
+                for(String st : com.get_parent()){
+                    q.add(st);
+                }
+            }
+        }
+
+        File ff = join(BRANCHES, branch_name);
+        String hash_of_giving_branch = readContentsAsString(ff);
+        Queue<String> q2 = new LinkedList<>();  //q2存放giving_commit hash and it's parents hash
+        q2.add(hash_of_giving_branch);
+        while(!q2.isEmpty()){                   //遍历比较父提交
+            String first = q2.poll();
+            if (s.contains(first)) {
+                return first;
+            }
+            File f = join(COMMITTED_DIR, first);
+            Commit com = readObject(f, Commit.class);
+            if(com.get_parent() != null){
+                for(String st : com.get_parent()){
+                    if(s.contains(st)){
+                        return st;
+                    }
+                    q2.add(st);
+                }
+            }
+        }
+        return null;
     }
 
     /** The current working directory. */
