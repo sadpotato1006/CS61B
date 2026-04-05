@@ -2,6 +2,7 @@ package bstmap;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Stack;
 
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
 
@@ -52,7 +53,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
     }
     @Override
     public Iterator<K> iterator() {
-        throw new UnsupportedOperationException();
+        return new Iterator<>(root);
     }
 
     @Override
@@ -101,7 +102,6 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
 
 
     private static class BSTNode<K extends Comparable<K>, V> {
-
         public K key;
         public V value;
         private BSTNode<K, V> left_map;
@@ -168,4 +168,29 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
 
     }
 
+    private static class Iterator<K extends Comparable<K>> implements java.util.Iterator<K> {
+        Stack<BSTNode<K, ?>> stack = new Stack<>();
+        public Iterator(BSTNode<K, ?> node){
+            BSTNode<K, ?> curr = node;
+            while(curr != null){
+                stack.push(curr);
+                curr = curr.left_map;
+            }
+        }
+        public boolean hasNext(){
+            return !stack.isEmpty();
+        }
+        public K next(){
+            BSTNode<K, ?> n = stack.pop();
+            K ans = n.key;
+            if(n.right_map != null){
+                n = n.right_map;
+                while(n != null){
+                  stack.push(n);
+                  n = n.left_map;
+                }
+            }
+            return ans;
+        }
+    }
 }
