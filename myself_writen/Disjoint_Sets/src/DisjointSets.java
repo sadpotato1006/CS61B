@@ -20,7 +20,7 @@ public class DisjointSets {
         if(rx == ry){
             return;
         }
-        if(-arr[rx] <= arr[-ry]){
+        if(-arr[rx] <= -arr[ry]){
             arr[ry] += arr[rx];
             arr[rx] = ry;
         }

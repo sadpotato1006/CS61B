@@ -67,7 +67,7 @@ public class Commit implements Serializable {
 
         //clone map (not just simply '=')
         if(this.parent != null && !this.parent.isEmpty()){
-            File f = join(COMMITTED_DIR, this.parent.get(0));
+            File f = join(COMMITTED_DIR, this.parent.get(0)); //merge是先进行“三方比对”，把需要改动的加到add文件夹里，然后再以parent1为基础合并 不需要以第二个parent为基础
             Commit par = readObject(f, Commit.class);
             this.map.putAll(par.map);
         }
