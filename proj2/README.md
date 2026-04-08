@@ -71,4 +71,20 @@ true: ```sha1(readContents(f))```
   ```rm``` ```log``` ```global_log``` ```find``` ```status```
   ```checkout``` ```branch``` ```rm-branch``` ```reset``` ```merge```
 
+## 5 命令说明
+```java -jar proj2.jar init``` 在当前目录初始化 Gitlet 仓库 \
+```java -jar proj2.jar add [filename]``` 暂存一个文件 \
+```java -jar proj2.jar commit [message]``` 创建一个新的快照 \
+```java -jar proj2.jar log``` 查看当前分支的历史轨迹 \
+```java -jar proj2.jar global_log``` 查看所有历史轨迹 \
+```java -jar proj2.jar find [message]``` 查找指定message的commit \
+```java -jar proj2.jar rm [file name]``` 如果在STAGED里面就从其中删除，否则在head commit里删除 都不满足则报错 \
+```java -jar proj2.jar status``` 查看当前的暂存、删除及分支状态 \
+```java -jar proj2.jar checkout [branch]``` 切换到指定分支 \
+```java -jar proj2.jar checkout [file name]``` 从head所指的commit中找到file并恢复到工作区中 \
+```java -jar proj2.jar checkout [commit id] [file name]``` 从指定的commit中找到file并恢复到工作区中 \
+```java -jar proj2.jar branch [branch name]``` 创建一个分支,指向head所指commit \
+```java -jar proj2.jar rm_branch [branch name]``` 删除指定分支 \
+```java -jar proj2.jar reset [commit id]``` Reset 的本质是将 HEAD 当前所关联的“分支指针”重定向到目标 Commit，并根据模式同步更新暂存区和工作区 \
+```java -jar proj2.jar merge [branch]``` 合并指定分支到当前分支 \
 
