@@ -1,11 +1,12 @@
+import java.lang.reflect.Array;
 import java.util.*;
 
-public class BFS_DFS_Dijkstra {
+public class Directed_Graph {
     int v;
     int e;
     private ArrayList<ArrayList<edge>> arr_edge = new ArrayList<>();
 
-    private class point implements Comparable<point>{
+    private static class point implements Comparable<point>{
         int id;
         int sum_dis;
         public point(int i){
@@ -21,15 +22,19 @@ public class BFS_DFS_Dijkstra {
             return this.sum_dis - p.sum_dis;
         }
     }
-    private class edge{
+
+    private static class edge{
+        int from;
         int to;
         int dis;
-        public edge(int t, int d){
+        public edge(int f, int t, int d){
+            from = f;
             to = t;
             dis = d;
         }
     }
-    public BFS_DFS_Dijkstra(int v, int e){
+
+    public Directed_Graph(int v, int e){
         this.v = v;
         this.e = e;
         for(int i = 0; i < v; i++){
@@ -40,7 +45,7 @@ public class BFS_DFS_Dijkstra {
             int s = scanner.nextInt();
             int t = scanner.nextInt();
             int dis = scanner.nextInt();
-            arr_edge.get(s).add(new edge(t, dis));
+            arr_edge.get(s).add(new edge(s, t, dis));
         }
     }
 
