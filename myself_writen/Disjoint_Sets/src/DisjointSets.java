@@ -1,6 +1,6 @@
 public class DisjointSets {
-    private int size;
-    private int[] arr;
+    private final int size;
+    private final int[] arr;
 
     public DisjointSets(int s){
         this.size = s;
