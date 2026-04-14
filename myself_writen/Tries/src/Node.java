@@ -14,7 +14,7 @@ public class Node{
 
     public void setNext(char c){
         if(this.next.containsKey(c)) return;
-        this.next.put(c, null);
+        this.next.put(c, new Node());
     }
 
     public boolean existNext(char c){
