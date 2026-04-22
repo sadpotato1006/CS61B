@@ -3,7 +3,7 @@ import java.util.HashMap;
 
 public class Node{
     public boolean isKey = false;
-    private HashMap<Character, Node> next = new HashMap<>();
+    private final HashMap<Character, Node> next = new HashMap<>();
     public Node(){
 
     }

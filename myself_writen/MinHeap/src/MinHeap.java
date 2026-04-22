@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class MinHeap<K extends Comparable<K>>{
-    private ArrayList<K> arr = new ArrayList<>();
+    private final ArrayList<K> arr = new ArrayList<>();
 
     public MinHeap(){
         arr.add(null);
