@@ -2,6 +2,9 @@ package byow.Core;
 
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
+import byow.TileEngine.Tileset;
+
+import java.util.Random;
 
 public class Engine {
     TERenderer ter = new TERenderer();
@@ -45,8 +48,24 @@ public class Engine {
         //
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
+        if(input.isEmpty() || input.length() == 0) return null;
+        if(input.charAt(0) != 'n' && input.charAt(0) != 'N') return null;
+        int i = 1;
+        while(input.charAt(i) != 's' && input.charAt(i) != 'S'){
+            i++;
+        }
+        String s = input.substring(1, i);
+        long seed = Long.parseLong(s);
+        Random RANDOM = new Random(seed);
+        WorldGenerate generate = new WorldGenerate(WIDTH, HEIGHT, RANDOM);
 
-        TETile[][] finalWorldFrame = null;
-        return finalWorldFrame;
+        return generate.generateWorld();
+    }
+    public static void main(String[] args) {
+        Engine engine = new Engine();
+        TETile[][] ans = engine.interactWithInputString("N113531s");
+        TERenderer ter = new TERenderer();
+        ter.initialize(WIDTH, HEIGHT);
+        ter.renderFrame(ans);
     }
 }
