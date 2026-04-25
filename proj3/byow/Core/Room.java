@@ -24,29 +24,29 @@ public class Room {
     public void drawRoom(TETile[][] ans){
         for(int i = x; i < x + width; i++){
             for(int j = y; j < y + height; j++){
-                if(isValued(i,j)){
+                if(isValid(i,j)){
                     ans[i][j] = Tileset.FLOOR;
                 }
             }
         }
         for(int i = y-1; i <= y+height; i++){
-            if(isValued(x-1,i) && ans[x-1][i].equals(Tileset.NOTHING)){
+            if(isValid(x-1,i) && ans[x-1][i].equals(Tileset.NOTHING)){
                 ans[x-1][i] = Tileset.WALL;
             }
-            if(isValued(x+width,i) && ans[x+width][i].equals(Tileset.NOTHING)){
+            if(isValid(x+width,i) && ans[x+width][i].equals(Tileset.NOTHING)){
                 ans[x+width][i] = Tileset.WALL;
             }
         }
         for(int i = x-1; i <= x+width; i++){
-            if(isValued(i,y-1) && ans[i][y-1].equals(Tileset.NOTHING)){
+            if(isValid(i,y-1) && ans[i][y-1].equals(Tileset.NOTHING)){
                 ans[i][y-1] = Tileset.WALL;
             }
-            if(isValued(i,y+height) && ans[i][y+height].equals(Tileset.NOTHING)){
+            if(isValid(i,y+height) && ans[i][y+height].equals(Tileset.NOTHING)){
                 ans[i][y+height] = Tileset.WALL;
             }
         }
     }
-    public static boolean isValued(int x, int y){
+    public static boolean isValid(int x, int y){
         return (x>=0 && x<WorldGenerate.WIDTH && y>=0 && y<WorldGenerate.HEIGHT);
     }
     public static void connect(Room a, Room b, TETile[][] ans){
@@ -63,20 +63,20 @@ public class Room {
             return;
         }
         for(int i = x1; i <= x2; i++){
-            if(isValued(i,y1)) ans[i][y1] = Tileset.FLOOR;
-            if(isValued(i,y1-1) && ans[i][y1-1] == Tileset.NOTHING) ans[i][y1-1] = Tileset.WALL;
-            if(isValued(i,y1+1) && ans[i][y1+1] == Tileset.NOTHING) ans[i][y1+1] = Tileset.WALL;
+            if(isValid(i,y1)) ans[i][y1] = Tileset.FLOOR;
+            if(isValid(i,y1-1) && ans[i][y1-1] == Tileset.NOTHING) ans[i][y1-1] = Tileset.WALL;
+            if(isValid(i,y1+1) && ans[i][y1+1] == Tileset.NOTHING) ans[i][y1+1] = Tileset.WALL;
         }
         for(int i = min(y1, y2); i <= max(y1, y2); i++){
-            if(isValued(x2,i)) ans[x2][i] = Tileset.FLOOR;
-            if(isValued(x2-1,i) && ans[x2-1][i] == Tileset.NOTHING) ans[x2-1][i] = Tileset.WALL;
-            if(isValued(x2+1,i) && ans[x2+1][i] == Tileset.NOTHING) ans[x2+1][i] = Tileset.WALL;
+            if(isValid(x2,i)) ans[x2][i] = Tileset.FLOOR;
+            if(isValid(x2-1,i) && ans[x2-1][i] == Tileset.NOTHING) ans[x2-1][i] = Tileset.WALL;
+            if(isValid(x2+1,i) && ans[x2+1][i] == Tileset.NOTHING) ans[x2+1][i] = Tileset.WALL;
         }
         if(y1<y2){
-            if(isValued(x2+1,y1-1) && ans[x2+1][y1-1] == Tileset.NOTHING) ans[x2+1][y1-1] = Tileset.WALL;
+            if(isValid(x2+1,y1-1) && ans[x2+1][y1-1] == Tileset.NOTHING) ans[x2+1][y1-1] = Tileset.WALL;
         }
         if(y1>y2){
-            if(isValued(x2+1,y1+1) && ans[x2+1][y1+1] == Tileset.NOTHING) ans[x2+1][y1+1] = Tileset.WALL;
+            if(isValid(x2+1,y1+1) && ans[x2+1][y1+1] == Tileset.NOTHING) ans[x2+1][y1+1] = Tileset.WALL;
         }
     }
     public static boolean isContained(Room a, Room b){
