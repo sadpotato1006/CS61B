@@ -172,7 +172,7 @@ public class Game {
         }
     }
     public void saveAndQuit(){
-        GameState gameState = new GameState(WIDTH, HEIGHT, map, avatar, random);
+        GameState gameState = new GameState(WIDTH, HEIGHT, map, avatar, random, light_open, is_limited_vision, limited_vision);
         SaveManager.saveAndQuit(gameState);
     }
     public boolean loadGame(){
@@ -184,6 +184,9 @@ public class Game {
         this.avatar = gameState.avatar;
         this.random = gameState.random;
         this.shouldQuit = false;
+        this.limited_vision = gameState.limited_vision;
+        this.light_open = gameState.light_open;
+        this.is_limited_vision = gameState.is_limited_vision;
         return true;
     }
     public void showLogo(){
@@ -201,26 +204,30 @@ public class Game {
         StdDraw.show();
     }
     public void drawHUD() {
+        Font font = new Font("Monaco", Font.PLAIN, 18);
+        StdDraw.setFont(font);
         int xi = (int) StdDraw.mouseX();
         int yi = (int) StdDraw.mouseY();
         if (xi >= 0 && xi < WIDTH && yi >= 0 && yi < HEIGHT) {
             String s = map[xi][yi].description();
-            Font font = new Font("Monaco", Font.PLAIN, 18);
-            StdDraw.setFont(font);
             StdDraw.setPenColor(Color.WHITE);
             StdDraw.text(WIDTH * 0.1, HEIGHT + 1, s);
         }
-        StdDraw.text(WIDTH * 0.9, HEIGHT + 2, "按v键调整视野 按l键开/关灯");
+        StdDraw.show();
+    }
+    public void drawMessage(){
+        Font font = new Font("Monaco", Font.PLAIN, 18);
+        StdDraw.setFont(font);
+        StdDraw.text(WIDTH * 0.9, HEIGHT + 2, "按V键调整视野 按L键开/关灯");
         if (is_limited_vision) {
             StdDraw.text(WIDTH * 0.9, HEIGHT + 1, "按+/-键 增加/减小视野");
         }
-
         StdDraw.show();
     }
     public void showAll(TERenderer ter){
         ter.renderFrame(getDisplayMap());
         drawHUD();
-
+        drawMessage();
     }
     public TETile[][] getDisplayMap(){
         TETile[][] displayMap = new TETile[map.length][map[0].length];
@@ -233,9 +240,7 @@ public class Game {
         ArrayList<Integer> yList = new ArrayList<>();
         for(int i=0;i<map.length;i++){
             for(int j=0;j<map[0].length;j++){
-                if(is_limited_vision && abs(i - avatar.x) + abs(j - avatar.y) > limited_vision){
-                    displayMap[i][j] = Tileset.NOTHING;
-                }else if(light_open && map[i][j].equals(Tileset.LIGHT_OFF)) {
+                if(light_open && map[i][j].equals(Tileset.LIGHT_OFF)) {
                     displayMap[i][j] = Tileset.LIGHT;
                     xList.add(i);
                     yList.add(j);
@@ -246,6 +251,16 @@ public class Game {
         }
         for(int i=0; i < xList.size(); i++){
             lightMap(displayMap, xList.get(i), yList.get(i));
+        }
+        if(is_limited_vision){
+            for(int i=0;i<map.length;i++){
+                for(int j=0;j<map[0].length;j++){
+                    if(abs(i - avatar.x) + abs(j - avatar.y) > limited_vision){
+                        displayMap[i][j] = Tileset.NOTHING;
+                    }
+                }
+            }
+
         }
         return displayMap;
     }
