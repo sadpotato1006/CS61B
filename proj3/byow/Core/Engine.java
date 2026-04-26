@@ -48,18 +48,8 @@ public class Engine {
         //
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
-        if(input.isEmpty() || input.length() == 0) return null;
-        if(input.charAt(0) != 'n' && input.charAt(0) != 'N') return null;
-        int i = 1;
-        while(input.charAt(i) != 's' && input.charAt(i) != 'S'){
-            i++;
-        }
-        String s = input.substring(1, i);
-        long seed = Long.parseLong(s);
-        Random RANDOM = new Random(seed);
-        WorldGenerate generate = new WorldGenerate(WIDTH, HEIGHT, RANDOM);
-
-        return generate.generateWorld();
+        Game game = new Game(WIDTH, HEIGHT);
+        return game.play_with_input_string(input);
     }
     public static void main(String[] args) {
         Engine engine = new Engine();

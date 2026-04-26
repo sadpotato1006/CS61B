@@ -10,12 +10,12 @@ import java.util.Random;
 import static byow.Core.Room.connect;
 
 public class WorldGenerate {
-    public static int WIDTH;
-    public static int HEIGHT;
+    public int WIDTH;
+    public int HEIGHT;
     public int num_of_room;
-    public static Random random;
+    public Random random;
     public ArrayList<Room> list;
-    public static int idGenerator;
+    public int idGenerator;
 
     public WorldGenerate(int a, int b, Random r){
         WIDTH = a;
