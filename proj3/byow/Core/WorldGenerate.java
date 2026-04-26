@@ -2,31 +2,29 @@ package byow.Core;
 
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
-
-import java.awt.datatransfer.FlavorListener;
 import java.util.ArrayList;
 import java.util.Random;
 
 import static byow.Core.Room.connect;
 
 public class WorldGenerate {
-    public int WIDTH;
-    public int HEIGHT;
+    public int width;
+    public int height;
     public int num_of_room;
     public Random random;
     public ArrayList<Room> list;
     public int idGenerator;
 
     public WorldGenerate(int a, int b, Random r){
-        WIDTH = a;
-        HEIGHT = b;
+        width = a;
+        height = b;
         random = r;
         num_of_room = random.nextInt(10) + 5;
         list = new ArrayList<>();
         idGenerator = 0;
     }
     public TETile[][] generateWorld(){
-        TETile[][] ans = new TETile[WIDTH][HEIGHT];
+        TETile[][] ans = new TETile[width][height];
         setNothing(ans);
         int time = 0;
         for(int i = 0; i < num_of_room && time < 90; i++, time++){
@@ -56,8 +54,8 @@ public class WorldGenerate {
     private Room generateRoom(){
         int width = random.nextInt(6) + 3;
         int height = random.nextInt(6) + 3;
-        int x = random.nextInt(WIDTH-width-3) + 2;
-        int y = random.nextInt(HEIGHT-height-3) + 2;
+        int x = random.nextInt(this.width -width-3) + 2;
+        int y = random.nextInt(this.height -height-3) + 2;
         return new Room(x, y, width, height,idGenerator++);
     }
     private boolean hasOverlap(Room newRoom) {

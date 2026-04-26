@@ -3,9 +3,10 @@ package byow.Core;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Avatar {
+public class Avatar implements Serializable {
     public int x;
     public int y;
     public Avatar(TETile[][] map, Random random){
@@ -27,9 +28,6 @@ public class Avatar {
         this.x += dx;
         this.y += dy;
         map[this.x][this.y] = Tileset.AVATAR;
-    }
-    public void save_and_exit(){
-
     }
     private boolean isValid(int x, int y, TETile[][] map){
         int w = map.length;

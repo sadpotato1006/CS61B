@@ -2,14 +2,16 @@ package byow.Core;
 
 import byow.TileEngine.TETile;
 
+import java.io.*;
 import java.util.Random;
 
-public class Game {
+public class Game implements Serializable {
     public int WIDTH;
     public int HEIGHT;
     public TETile[][] map;
     public Avatar avatar;
     public Random random;
+    public static final File SAVE_FILE = new File("save_file");
 
     public Game(int w, int h){
         WIDTH = w;
@@ -19,7 +21,17 @@ public class Game {
         if(input.isEmpty()) return null;
         input = input.toLowerCase();
         if(input.charAt(0) == 'l') {
-
+            Game loadedGame = this.loadGame();
+            if (loadedGame == null) {
+                return null;
+            }
+            this.WIDTH = loadedGame.WIDTH;
+            this.HEIGHT = loadedGame.HEIGHT;
+            this.map = loadedGame.map;
+            this.avatar = loadedGame.avatar;
+            this.random = loadedGame.random;
+            runCommands(input, 1);
+            return map;
         }
         if(input.charAt(0) == 'n') {
             int index = find_seed_end(input);
@@ -34,11 +46,11 @@ public class Game {
     }
     public int find_seed_end(String input){
         int i = 1;
-        while(input.charAt(i) != 's' && input.charAt(i) != 'S'){
-            i++;
-            if(i >= input.length()){
-                return -1;
+        while(i < input.length()){
+            if(input.charAt(i) == 's'){
+                return i;
             }
+            i++;
         }
         return i;
     }
@@ -53,29 +65,55 @@ public class Game {
             char c = input.charAt(index);
             index++;
             if(c == ':'){
+                if(index+1 >= input.length()) return;
                 char c2 = input.charAt(index);
-                if(c2 == 'q' || c2 == 'Q'){
-                    avatar.save_and_exit();
-                    index++;
+                if(c2 == 'q'){
+                    this.saveAndQuit();
                     break;
                 }
+                index += 2;
+                continue;
             }
-            if(c == 'w' || c == 'W'){
+            if(c == 'w'){
                 avatar.moveHelper(0, 1, map);
                 continue;
             }
-            if(c == 'a' || c == 'A'){
+            if(c == 'a'){
                 avatar.moveHelper(-1, 0, map);
                 continue;
             }
-            if(c == 's' || c == 'S'){
+            if(c == 's'){
                 avatar.moveHelper(0, -1, map);
                 continue;
             }
-            if(c == 'd' || c == 'D'){
+            if(c == 'd'){
                 avatar.moveHelper(1, 0, map);
                 continue;
             }
         }
     }
+    public void saveAndQuit(){
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SAVE_FILE));
+            out.writeObject(this);
+            out.close();
+        } catch (Exception e) {
+            System.out.println("Save failed: " + e.getMessage());
+        }
+    }
+    public Game loadGame(){
+        if (!SAVE_FILE.exists()) {
+            return null;
+        }
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(SAVE_FILE));
+            Game loadedGame = (Game) in.readObject();
+            in.close();
+            return loadedGame;
+        } catch (Exception e) {
+            System.out.println("Load failed: " + e.getMessage());
+            return null;
+        }
+    }
+
 }
