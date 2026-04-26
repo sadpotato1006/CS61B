@@ -3,6 +3,7 @@ package byow.Core;
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
+import edu.princeton.cs.introcs.StdDraw;
 
 import java.util.Random;
 
@@ -17,6 +18,10 @@ public class Engine {
      * including inputs from the main menu.
      */
     public void interactWithKeyboard() {
+        ter.initialize(WIDTH, HEIGHT + 3);
+        Game game = new Game(WIDTH, HEIGHT);
+        game.play_with_keyboard(ter);
+        System.exit(0);
     }
 
     /**
@@ -53,9 +58,10 @@ public class Engine {
     }
     public static void main(String[] args) {
         Engine engine = new Engine();
-        TETile[][] ans = engine.interactWithInputString("N113531s");
-        TERenderer ter = new TERenderer();
-        ter.initialize(WIDTH, HEIGHT);
-        ter.renderFrame(ans);
+        engine.interactWithKeyboard();
+//        TETile[][] map = engine.interactWithInputString("N113531s");
+//        TERenderer ter = new TERenderer();
+//        ter.initialize(WIDTH, HEIGHT);
+//        ter.renderFrame(map);
     }
 }

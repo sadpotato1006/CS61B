@@ -1,7 +1,9 @@
 package byow.TileEngine;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Random;
 
 import edu.princeton.cs.introcs.StdDraw;
@@ -21,7 +23,7 @@ import byow.Core.RandomUtils;
  * to make your TETile class mutable, if you prefer.
  */
 
-public class TETile {
+public class TETile implements Serializable {
     private final char character; // Do not rename character or the autograder will break.
     private final Color textColor;
     private final Color backgroundColor;
@@ -188,5 +190,25 @@ public class TETile {
         }
 
         return copy;
+    }
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof TETile)) {
+            return false;
+        }
+        TETile that = (TETile) other;
+        return this.character == that.character
+                && Objects.equals(this.textColor, that.textColor)
+                && Objects.equals(this.backgroundColor, that.backgroundColor)
+                && Objects.equals(this.description, that.description)
+                && Objects.equals(this.filepath, that.filepath);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(character, textColor, backgroundColor, description, filepath);
     }
 }

@@ -1,5 +1,6 @@
 package byow.Core;
 
+import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ public class WorldGenerate {
     public int width;
     public int height;
     public int num_of_room;
+    public int num_of_light;
     public Random random;
     public ArrayList<Room> list;
     public int idGenerator;
@@ -20,31 +22,19 @@ public class WorldGenerate {
         height = b;
         random = r;
         num_of_room = random.nextInt(10) + 5;
+        num_of_light = random.nextInt(10) + 5;
         list = new ArrayList<>();
         idGenerator = 0;
     }
     public TETile[][] generateWorld(){
-        TETile[][] ans = new TETile[width][height];
-        setNothing(ans);
-        int time = 0;
-        for(int i = 0; i < num_of_room && time < 90; i++, time++){
-            Room r = generateRoom();
-            if(hasOverlap(r)){
-                i--;
-                continue;
-            }
-            list.add(r);
-            r.drawRoom(ans);
-        }
-        Room pre = list.get(0);
-        for(int i = 1; i < list.size(); i++){
-            Room curr = list.get(i);
-            connect(pre, curr, ans);
-            pre = curr;
-        }
-        return ans;
+        TETile[][] map = new TETile[width][height];
+        setNothing(map);
+        generateRoomInMap(map);
+        generateLightInMap(map);
+
+        return map;
     }
-    private static void setNothing(TETile[][] map){
+    public static void setNothing(TETile[][] map){
         for(int i=0;i<map.length;i++){
             for(int j=0;j<map[0].length;j++){
                 map[i][j] = Tileset.NOTHING;
@@ -66,5 +56,33 @@ public class WorldGenerate {
         }
         return false;
     }
-
+    public void generateRoomInMap(TETile[][] map){
+        int time = 0;
+        for(int i = 0; i < num_of_room && time < 90; i++, time++){
+            Room r = generateRoom();
+            if(hasOverlap(r)){
+                i--;
+                continue;
+            }
+            list.add(r);
+            r.drawRoom(map);
+        }
+        Room pre = list.get(0);
+        for(int i = 1; i < list.size(); i++){
+            Room curr = list.get(i);
+            connect(pre, curr, map);
+            pre = curr;
+        }
+    }
+    public void generateLightInMap(TETile[][] map){
+        int time = 0;
+        for(int i = 0; i < num_of_light && time < 90; time++){
+            int x = random.nextInt(width-1);
+            int y = random.nextInt(height-1);
+            if(x>=0 && x<map.length && y>=0 && y<map[0].length && map[x][y].equals(Tileset.FLOOR)){
+                map[x][y] = Tileset.LIGHT_OFF;
+                i++;
+            }
+        }
+    }
 }

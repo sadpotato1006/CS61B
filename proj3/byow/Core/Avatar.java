@@ -9,6 +9,7 @@ import java.util.Random;
 public class Avatar implements Serializable {
     public int x;
     public int y;
+    public TETile curr = Tileset.FLOOR;
     public Avatar(TETile[][] map, Random random){
         while(true){
             int xx = random.nextInt(map.length);
@@ -23,8 +24,9 @@ public class Avatar implements Serializable {
     public void moveHelper(int dx, int dy, TETile[][] map){
         int xx = this.x + dx;
         int yy = this.y + dy;
-        if(!isValid(xx, yy, map) || !map[xx][yy].equals(Tileset.FLOOR)) return;
-        map[this.x][this.y] = Tileset.FLOOR;
+        if(!isValid(xx, yy, map) || map[xx][yy].equals(Tileset.WALL) || map[xx][yy].equals(Tileset.NOTHING)) return;
+        map[this.x][this.y] = curr;
+        this.curr = map[xx][yy];
         this.x += dx;
         this.y += dy;
         map[this.x][this.y] = Tileset.AVATAR;
