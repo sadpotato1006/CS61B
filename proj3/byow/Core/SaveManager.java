@@ -3,7 +3,7 @@ package byow.Core;
 import java.io.*;
 
 public class SaveManager {
-    public static final File SAVE_FILE = new File("save_file");
+    public static final File SAVE_FILE = new File("save_file.txt");
 
     public static void saveAndQuit(GameState gameState){
         try {

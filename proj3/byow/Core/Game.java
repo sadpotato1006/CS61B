@@ -4,9 +4,8 @@ import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 import byow.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
-import org.checkerframework.checker.units.qual.A;
 
-import javax.lang.model.type.ArrayType;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;

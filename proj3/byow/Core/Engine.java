@@ -2,10 +2,6 @@ package byow.Core;
 
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
-import byow.TileEngine.Tileset;
-import edu.princeton.cs.introcs.StdDraw;
-
-import java.util.Random;
 
 public class Engine {
     TERenderer ter = new TERenderer();
