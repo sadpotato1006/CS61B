@@ -47,7 +47,7 @@ public class Game {
     public boolean processMenuChoice(InputSource source, boolean shouldRender, TERenderer ter){
         if(source == null || source.isExhausted()) return false;
         while(true){
-            StdDraw.pause(20);
+            if(shouldRender) StdDraw.pause(20);
             if(source.isExhausted()) return false;
             if(!source.hasNextKey()) continue;
             char menuChoice = source.getNextKey();
@@ -68,7 +68,7 @@ public class Game {
         if(source == null || source.isExhausted()) return null;
         StringBuilder string_builder = new StringBuilder();
         while(!source.isExhausted()){
-            StdDraw.pause(20);
+            if(shouldRender) StdDraw.pause(20);
             if(shouldRender) drawSeedScreen(string_builder.toString());
             if(!source.hasNextKey()) continue;
             char c = source.getNextKey();
@@ -86,7 +86,7 @@ public class Game {
         while(!source.isExhausted() && !this.shouldQuit){
             if(shouldRender && ter != null) showAll(ter);
             if(source.hasNextKey()) handleKey(source.getNextKey());
-            StdDraw.pause(20);
+            if(shouldRender) StdDraw.pause(20);
         }
     }
     private void drawSeedScreen(String seed) {
