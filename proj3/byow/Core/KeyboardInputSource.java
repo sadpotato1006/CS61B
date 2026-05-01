@@ -5,13 +5,15 @@ import edu.princeton.cs.introcs.StdDraw;
 public class KeyboardInputSource implements InputSource{
 
     public boolean hasNextKey(){
-        return true;
+        return StdDraw.hasNextKeyTyped();
     }
 
     public char getNextKey(){
-        while(!StdDraw.hasNextKeyTyped()){
-            StdDraw.pause(20);
-        }
-        return StdDraw.nextKeyTyped();
+        return Character.toLowerCase(StdDraw.nextKeyTyped());
+    }
+
+    // 这个输入源是否已经彻底结束
+    public boolean isExhausted(){
+        return false;
     }
 }

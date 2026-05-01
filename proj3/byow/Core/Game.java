@@ -30,85 +30,64 @@ public class Game {
         WIDTH = w;
         HEIGHT = h;
     }
-    public void startNewGame(long seed){
+    public void initGame(long seed){
         this.random = new Random(seed);
         WorldGenerate generate = new WorldGenerate(WIDTH, HEIGHT, random);
         this.map = generate.generateWorld();
         this.avatar = new Avatar(map, random);
     }
-    public TETile[][] play_with_input_string(String input){
-        if(input.isEmpty()) return null;
-        input = input.toLowerCase();
-        if(input.charAt(0) == 'l') {
-            if(!loadGame()) return null;
-            runCommands(input, 1);
-            return map;
+    public TETile[][] play(InputSource source, boolean shouldRender, TERenderer ter){
+        if(source == null) return null;
+        if(shouldRender) showLogo();
+        boolean menuChoice = processMenuChoice(source, shouldRender, ter);
+        if(!menuChoice) return null;
+        processRestCommand(source, shouldRender, ter);
+        return this.map;
+    }
+    public boolean processMenuChoice(InputSource source, boolean shouldRender, TERenderer ter){
+        if(source == null || source.isExhausted()) return false;
+        while(true){
+            StdDraw.pause(20);
+            if(source.isExhausted()) return false;
+            if(!source.hasNextKey()) continue;
+            char menuChoice = source.getNextKey();
+            if(menuChoice == 'l'){
+                return loadGame();
+            }else if(menuChoice == 'n'){
+                Long seed = filterSeed(source, shouldRender,ter);
+                if(seed == null) return false;
+                this.initGame(seed);
+                return true;
+            }else if(menuChoice == 'q'){
+                shouldQuit = true;
+                return false;
+            }
         }
-        if(input.charAt(0) == 'n') {
-            int index = find_seed_end(input);
-            if(index == -1) return null;
-
-            String seedString = input.substring(1, index);
-            long seed = Long.parseLong(seedString);
-            startNewGame(seed);
-
-            runCommands(input, index + 1);
-            return map;
+    }
+    public Long filterSeed(InputSource source, boolean shouldRender, TERenderer ter){
+        if(source == null || source.isExhausted()) return null;
+        StringBuilder string_builder = new StringBuilder();
+        while(!source.isExhausted()){
+            StdDraw.pause(20);
+            if(shouldRender) drawSeedScreen(string_builder.toString());
+            if(!source.hasNextKey()) continue;
+            char c = source.getNextKey();
+            if(c == 's'){
+                if(string_builder.length() == 0) return null;
+                return Long.parseLong(string_builder.toString());
+            }
+            if(Character.isDigit(c)){
+                string_builder.append(c);
+            }
         }
         return null;
     }
-    public void play_with_keyboard(TERenderer ter){
-        showLogo();
-        char choice = readMenuChoice();
-        if (choice == 'n') {
-            long seed = readSeedFromKeyboard();
-            startNewGame(seed);
-        }
-        else if (choice == 'l') {
-            boolean loaded = loadGame();
-            if (!loaded) {
-                return;
-            }
-        }
-        else if (choice == 'q') {
-            return;
-        }
-        while(!this.shouldQuit){
-            showAll(ter);
-            if (StdDraw.hasNextKeyTyped()) {
-                char key = StdDraw.nextKeyTyped();
-                this.handleKey(key);
-            }
+    public void processRestCommand(InputSource source, boolean shouldRender, TERenderer ter){
+        while(!source.isExhausted() && !this.shouldQuit){
+            if(shouldRender && ter != null) showAll(ter);
+            if(source.hasNextKey()) handleKey(source.getNextKey());
             StdDraw.pause(20);
         }
-    }
-    private char readMenuChoice() {
-        while (true) {
-            if (!StdDraw.hasNextKeyTyped()) {
-                StdDraw.pause(20);
-                continue;
-            }
-            char key = Character.toLowerCase(StdDraw.nextKeyTyped());
-            if (key == 'n' || key == 'l' || key == 'q') {
-                return key;
-            }
-        }
-    }
-    public long readSeedFromKeyboard(){
-        StringBuilder seed = new StringBuilder();
-        while(true) {
-            drawSeedScreen(seed.toString());
-            if (!StdDraw.hasNextKeyTyped()) {
-                StdDraw.pause(20);
-                continue;
-            }
-            char key = StdDraw.nextKeyTyped();
-            if((key == 's' || key == 'S') && seed.length() > 0) break;
-            if (Character.isDigit(key)) {
-                seed.append(key);
-            }
-        }
-        return Long.parseLong(seed.toString());
     }
     private void drawSeedScreen(String seed) {
         StdDraw.clear(Color.BLACK);
@@ -120,26 +99,6 @@ public class Game {
         StdDraw.text(WIDTH * 0.5, HEIGHT * 0.35, "Press S to start");
         StdDraw.show();
     }
-    public int find_seed_end(String input){
-        int i = 1;
-        while(i < input.length()){
-            if(input.charAt(i) == 's'){
-                return i;
-            }
-            i++;
-        }
-        return -1;
-    }
-    public void runCommands(String input, int index){
-        while(index < input.length()){
-            char c = input.charAt(index);
-            handleKey(c);
-            if(shouldQuit){
-                return;
-            }
-            index++;
-        }
-    }
     public void handleKey(char c){
         c = Character.toLowerCase(c);
         if(waitingForColonCommand){
@@ -148,7 +107,6 @@ public class Game {
                 shouldQuit = true;
             }
             waitingForColonCommand = false;
-            return;
         }else if(c == ':'){
             waitingForColonCommand = true;
         }else if(avatar == null || map == null){
@@ -204,20 +162,16 @@ public class Game {
         StdDraw.show();
     }
     public void drawHUD() {
-        Font font = new Font("Monaco", Font.PLAIN, 18);
-        StdDraw.setFont(font);
+        StdDraw.setPenColor(Color.WHITE);
         int xi = (int) StdDraw.mouseX();
         int yi = (int) StdDraw.mouseY();
         if (xi >= 0 && xi < WIDTH && yi >= 0 && yi < HEIGHT) {
             String s = map[xi][yi].description();
-            StdDraw.setPenColor(Color.WHITE);
             StdDraw.text(WIDTH * 0.1, HEIGHT + 1, s);
         }
         StdDraw.show();
     }
     public void drawMessage(){
-        Font font = new Font("Monaco", Font.PLAIN, 18);
-        StdDraw.setFont(font);
         StdDraw.setPenColor(Color.WHITE);
         StdDraw.text(WIDTH * 0.9, HEIGHT + 2, "按V键调整视野 按L键开/关灯");
         if (is_limited_vision) {
@@ -226,6 +180,10 @@ public class Game {
         StdDraw.show();
     }
     public void showAll(TERenderer ter){
+        Font font = new Font("Monaco", Font.PLAIN, 18);
+        StdDraw.setFont(font);
+        StdDraw.setPenColor(Color.WHITE);
+
         ter.renderFrame(getDisplayMap());
         drawHUD();
         drawMessage();
@@ -237,6 +195,8 @@ public class Game {
                 displayMap[i][j] = Tileset.NOTHING;
             }
         }
+
+        //收集所有灯的位置
         ArrayList<Integer> xList = new ArrayList<>();
         ArrayList<Integer> yList = new ArrayList<>();
         for(int i=0;i<map.length;i++){
@@ -251,8 +211,10 @@ public class Game {
             }
         }
         for(int i=0; i < xList.size(); i++){
-            lightMap(displayMap, xList.get(i), yList.get(i));
+            lightMap(displayMap, xList.get(i), yList.get(i)); //点灯
         }
+
+        //限制视野
         if(is_limited_vision){
             for(int i=0;i<map.length;i++){
                 for(int j=0;j<map[0].length;j++){

@@ -16,7 +16,8 @@ public class Engine {
     public void interactWithKeyboard() {
         ter.initialize(WIDTH, HEIGHT + 3);
         Game game = new Game(WIDTH, HEIGHT);
-        game.play_with_keyboard(ter);
+        KeyboardInputSource source = new KeyboardInputSource();
+        game.play(source, true, ter);
         System.exit(0);
     }
 
@@ -50,7 +51,9 @@ public class Engine {
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
         Game game = new Game(WIDTH, HEIGHT);
-        return game.play_with_input_string(input);
+        if(input == null || input.length() == 0) return null;
+        StringInputSource source = new StringInputSource(input.toLowerCase());
+        return game.play(source, false, null);
     }
     public static void main(String[] args) {
         Engine engine = new Engine();

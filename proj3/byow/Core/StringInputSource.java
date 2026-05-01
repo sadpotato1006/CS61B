@@ -16,4 +16,9 @@ public class StringInputSource implements InputSource{
     public char getNextKey(){
         return key_string.charAt(index++);
     }
+
+    // 这个输入源是否已经彻底结束
+    public boolean isExhausted(){
+        return hasNextKey();
+    }
 }
