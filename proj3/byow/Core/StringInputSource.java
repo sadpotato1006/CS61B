@@ -19,6 +19,6 @@ public class StringInputSource implements InputSource{
 
     // 这个输入源是否已经彻底结束
     public boolean isExhausted(){
-        return hasNextKey();
+        return !hasNextKey();
     }
 }
