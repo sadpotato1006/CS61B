@@ -51,7 +51,7 @@ public class Engine {
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
         Game game = new Game(WIDTH, HEIGHT);
-        if(input == null || input.length() == 0) return null;
+        if(input == null || input.isEmpty()) input = "n0s";
         StringInputSource source = new StringInputSource(input.toLowerCase());
         return game.play(source, false, null);
     }
