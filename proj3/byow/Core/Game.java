@@ -218,6 +218,7 @@ public class Game {
     public void drawMessage(){
         Font font = new Font("Monaco", Font.PLAIN, 18);
         StdDraw.setFont(font);
+        StdDraw.setPenColor(Color.WHITE);
         StdDraw.text(WIDTH * 0.9, HEIGHT + 2, "按V键调整视野 按L键开/关灯");
         if (is_limited_vision) {
             StdDraw.text(WIDTH * 0.9, HEIGHT + 1, "按+/-键 增加/减小视野");
