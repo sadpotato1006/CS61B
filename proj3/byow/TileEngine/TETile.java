@@ -30,6 +30,10 @@ public class TETile implements Serializable {
     private final String description;
     private final String filepath;
 
+    public Color getBackgroundColor(){
+        return this.backgroundColor;
+    }
+
     /**
      * Full constructor for TETile objects.
      * @param character The character displayed on the screen.

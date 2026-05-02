@@ -35,6 +35,11 @@ public class Game {
         WorldGenerate generate = new WorldGenerate(WIDTH, HEIGHT, random);
         this.map = generate.generateWorld();
         this.avatar = new Avatar(map, random);
+        this.waitingForColonCommand = false;
+        this.shouldQuit = false;
+        this.light_open = true;
+        this.is_limited_vision = false;
+        this.limited_vision = 5;
     }
     public TETile[][] play(InputSource source, boolean shouldRender, TERenderer ter){
         if(source == null) return null;
@@ -85,7 +90,16 @@ public class Game {
     public void processRestCommand(InputSource source, boolean shouldRender, TERenderer ter){
         while(!source.isExhausted() && !this.shouldQuit){
             if(shouldRender && ter != null) showAll(ter);
-            if(source.hasNextKey()) handleKey(source.getNextKey());
+            if(source.hasNextKey()){
+                char c = source.getNextKey();
+                if(c == 'r'){
+                    Long seed = filterSeed(source, shouldRender, ter);
+                    initGame(seed);
+                    continue;
+                }else{
+                    handleKey(c);
+                }
+            }
             if(shouldRender) StdDraw.pause(20);
         }
     }
@@ -169,15 +183,15 @@ public class Game {
             String s = map[xi][yi].description();
             StdDraw.text(WIDTH * 0.1, HEIGHT + 1, s);
         }
-        StdDraw.show();
+        //StdDraw.show();
     }
     public void drawMessage(){
         StdDraw.setPenColor(Color.WHITE);
-        StdDraw.text(WIDTH * 0.9, HEIGHT + 2, "按V键调整视野 按L键开/关灯");
+        StdDraw.text(WIDTH * 0.5, HEIGHT + 2, "V:调整视野  L:开/关灯  R:new world  :Q 保存并退出");
         if (is_limited_vision) {
             StdDraw.text(WIDTH * 0.9, HEIGHT + 1, "按+/-键 增加/减小视野");
         }
-        StdDraw.show();
+        //StdDraw.show();
     }
     public void showAll(TERenderer ter){
         Font font = new Font("Monaco", Font.PLAIN, 18);
@@ -187,6 +201,8 @@ public class Game {
         ter.renderFrame(getDisplayMap());
         drawHUD();
         drawMessage();
+
+        StdDraw.show(); //最后统一展示 避免闪烁
     }
     public TETile[][] getDisplayMap(){
         TETile[][] displayMap = new TETile[map.length][map[0].length];
@@ -216,6 +232,7 @@ public class Game {
 
         //限制视野
         if(is_limited_vision){
+
             for(int i=0;i<map.length;i++){
                 for(int j=0;j<map[0].length;j++){
                     if(abs(i - avatar.x) + abs(j - avatar.y) > limited_vision){
@@ -228,14 +245,15 @@ public class Game {
         return displayMap;
     }
     public void lightMap(TETile[][] displayMap, int x, int y){
-        for(int i = x-2; i <= x+2; i++){
-            for(int j = y-2; j <= y+2; j++){
+        for(int i = x-5; i <= x+5; i++){
+            for(int j = y-5; j <= y+5; j++){
                 if(i >= 0 && i < WIDTH && j >= 0 && j < HEIGHT && map[i][j].equals(Tileset.FLOOR)){
                     int dx = max(abs(i-x), abs(j-y));
-                    int r = max(0, 70 - 25*dx);
-                    int g = max(0, 120 - 40*dx);
-                    int b = max(0, 255 - 80*dx);
+                    int r = max(0, 70 - 15*dx);
+                    int g = max(0, 120 - 24*dx);
+                    int b = max(0, 255 - 51*dx);
                     if(r==0 && g==0 && b==0) continue;
+                    if(displayMap[i][j].getBackgroundColor().getBlue() > b) continue; //避免强光被弱光覆盖
                     displayMap[i][j] = new TETile(map[i][j].character(), new Color(128, 192, 128), new Color(r,g,b), map[i][j].description());
                 }
             }
