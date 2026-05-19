@@ -94,7 +94,9 @@ public class Game {
                 char c = source.getNextKey();
                 if(c == 'r'){
                     Long seed = filterSeed(source, shouldRender, ter);
-                    initGame(seed);
+                    if(seed != null){
+                        initGame(seed);
+                    }
                     continue;
                 }else{
                     handleKey(c);

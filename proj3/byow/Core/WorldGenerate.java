@@ -66,6 +66,9 @@ public class WorldGenerate {
             list.add(r);
             r.drawRoom(map);
         }
+        if(list.isEmpty()){
+            return;
+        }
         Room pre = list.get(0);
         for(int i = 1; i < list.size(); i++){
             Room curr = list.get(i);
